@@ -1,10 +1,32 @@
 import numpy as np
-from rocketcea.cea_obj import CEA_Obj
+from rocketcea.cea_obj import CEA_Obj, add_new_fuel
 import matplotlib.pyplot as plt
-oxName = 'GOX'
-fuelName = 'RP1'
+
+# ----------------------------
+# Custom fuel: Paraffin/Al/C40H82, 80/10/10 by mass
+# ----------------------------
+paraffin_al_c40_card = """
+fuel Paraffin80   C 73.0  H 148.0   wt%=80.0
+h,cal=-4.4464E+05     t(k)=298.15
+
+fuel Aluminum10  AL 1.0             wt%=10.0
+h,cal=0.0             t(k)=298.15
+
+fuel C40H82_10   C 40.0  H 82.0     wt%=10.0
+h,cal=-2.0768E+05     t(k)=298.15
+"""
+
+add_new_fuel("Paraffin_Al_C40_80_10_10", paraffin_al_c40_card)
+
+# ----------------------------
+# Globals / design parameters
+# ----------------------------
+oxName = 'N2O'
+fuelName = 'Paraffin_Al_C40_80_10_10'
 pamb = 14.7 # psia
-# This is a test
+m_sq_to_in_sq = 1550 #1 m^2 = 1550 in^2
+n2o_density = 750 # kg/m^3
+fuel_density = 950 # kg/m^3
 
 def plot_OF(pc, eps):
     # creates CEA object with Ox and Fuel
@@ -15,8 +37,9 @@ def plot_OF(pc, eps):
     throat_temp = []
     exhaust_temp = []
     isp_list = []
-
     of_list = []
+
+    g0_ft = 32.174  # ft/s^2
 
     # iterates through o/f ratios in 0.5 step sizes
     for of in np.arange(0.5, 10.0, 0.25):
@@ -24,7 +47,7 @@ def plot_OF(pc, eps):
             # add o/f ratio to list
             of_list.append(of)
 
-            # get all temperatures in one list
+            # get all temperatures in one list (degrees R)
             temp = cea_obj.get_Temperatures(Pc = pc, MR = of, eps = eps)
 
             # append temps to corresponding lists, converting to Kelvin
@@ -32,14 +55,15 @@ def plot_OF(pc, eps):
             throat_temp.append(temp[1] * 5/9)
             exhaust_temp.append(temp[2] * 5/9)
 
-            # get fuel coefficient
-            Cf = cea_obj.get_PambCf(Pamb = 14.7, Pc = pc, MR = of, eps = eps)[0]
+            # Quiet CEA performance call
+            Isp_vac, Cstar_ft_s, Tc, MW, gamma = \
+                cea_obj.get_IvacCstrTc_ChmMwGam(Pc=pc, MR=of, eps=eps)
 
-            # get cstar
-            cstar = cea_obj.get_Cstar(Pc = pc, MR = of) * 0.3048
+            # Ambient Isp at pamb using RocketCEA's documented correction
+            Isp_amb = Isp_vac - Cstar_ft_s * pamb * eps / (pc * g0_ft)
 
-            # add isp to list
-            isp_list.append(cstar * Cf / 9.80655)
+            # Store ambient Isp in seconds
+            isp_list.append(Isp_amb)
         except Exception as e:
             # prevents errors
             print(f"Skipping MR = {of:.2f}: {e}")

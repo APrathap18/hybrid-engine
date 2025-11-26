@@ -1,55 +1,137 @@
 import numpy as np
 import math as math
-from rocketcea.cea_obj import CEA_Obj
+from rocketcea.cea_obj import CEA_Obj, add_new_fuel
 import matplotlib.pyplot as plt
+import throat_sizing
 
-oxName = 'GOX'
-fuelName = 'RP1'
-pamb = 14.7 # psia
-#C = 0.85
-#Cd = 0.85
-g = 1.26 #ox
-P0 = 300*6894.76 #Pa
-rhoRP1 = 810 #kg/m^3
-rhoGOX = 1.429 #kg/m^3, 8.9497e-1
-P1 = 300*6894.76 #Pa
-P2 = 150*6894.76 #Pa, chamber pressure
-mdot = 0.014279838482639268 #kg/s
-qm = mdot
-L_star = 45 #in
-D_c = 1.5 #in
+# ----------------------------
+# Custom fuel: Paraffin/Al/C40H82, 80/10/10 by mass
+# ----------------------------
+paraffin_al_c40_card = """
+fuel Paraffin80   C 73.0  H 148.0   wt%=80.0
+h,cal=-4.4464E+05     t(k)=298.15
+
+fuel Aluminum10   AL 1.0             wt%=10.0
+h,cal=0.0             t(k)=298.15
+
+fuel C40H82_10    C 40.0  H 82.0     wt%=10.0
+h,cal=-2.0768E+05     t(k)=298.15
+"""
+
+add_new_fuel("Paraffin_Al_C40_80_10_10", paraffin_al_c40_card)
+
+# ----------------------------
+# Globals / design parameters
+# ----------------------------
+oxName = 'N2O'
+fuelName = 'Paraffin_Al_C40_80_10_10'
+
+pamb = 14.7  # psia (unused here, but keeping)
+m_sq_to_in_sq = 1550  # 1 m^2 = 1550 in^2 (unused here)
+
+# Densities (design values)
+rhoN2O  = 750.0  # kg/m^3, liquid N2O at ~20–25 C
+rhofuel = 950.0  # kg/m^3, paraffin/Al/C40 mixture
+
+# Gas gamma for N2O if needed later (not used in incompressible formula)
+g = 1.26  # ox
+
+# Pressures (Pa)
+P0 = 750 * 6894.76  # Pa, N2O tank pressure (example)
+P1 = P0             # Pa, fuel feed pressure (if same as N2O tank)
+P2 = 300 * 6894.76  # Pa, chamber pressure
+
+# Mass flow assumptions
+mdot = 0.014279838482639268  # kg/s, oxidizer mass flow (N2O)
+
+m_dot_ox = mdot
+
+# Chamber geometry (inches)
+L_star = 45.0  # in
+D_c    = 1.25   # in
+
+# Discharge coefficient assumption for orifices
+Cd_default = 0.7
 
 
-#GH2_pyfluids = Fluid(FluidsList.Hydrogen).with_state(Input.pressure(feed_press_f_pa), Input.temperature(20))
-#GH2_rho = GH2_pyfluids.density # Hydrogen density at manifold pressure and ambient temperature (kg/m^3)
+def orifice_area(A_t_in2, of, Cd=Cd_default):
+    """
+    A_t_in2 : throat area in in^2 (used only for chamber geometry / L* calcs)
+    Cd      : discharge coefficient (same for fuel and oxidizer here)
+    """
+    C = CEA_Obj(oxName=oxName, fuelName=fuelName)
 
-def orifice_area(A_t):
-    #RP-1, incompressible flow
-    #qdot = C * A*sqrt(2*dens*(P1-P2)) #incompressible, m^3/s
-    CA = qm/(math.sqrt(2*rhoRP1*(P1-P2)))
+    # m dot of fuel
+    m_dot_fuel = m_dot_ox / of
+
+    # ----------------------------
+    # Chamber geometry from L*
+    # ----------------------------
     print("Orifice Sizing Parameters")
     print("----------------------------------")
 
-    print(f"L* for GOX/RP1: {L_star} in")
+    print(f"L* for N2O / Paraffin mix: {L_star:.2f} in")
 
-    V_c = A_t * L_star #in^3
+    # A_t is in^2 and L* in in, so V_c is in^3
+    V_c = A_t_in2 * L_star
+    print(f"Chamber Volume: {V_c:.3f} in^3")
+    print(f"Chamber Diameter: {D_c:.3f} in")
 
-    print(f"Chamber Volume: {V_c} in^3")
-    print("Chamber Diameter: 1.5 in")
+    A_c = math.pi * D_c**2 / 4.0
+    print(f"Chamber Area: {A_c:.3f} in^2")
 
-    A_c = math.pi * D_c**2 / 4
+    # Add 10% extra length margin (factor 1.1)
+    L_c = V_c / (1.1 * A_c)
+    print(f"Chamber Length: {L_c:.3f} in")
 
-    print(f"Chamber Area: {A_c} in^2")
+    # ----------------------------
+    # Fuel orifice (incompressible)
+    # ----------------------------
+    # Pressure drop across fuel orifice
+    DeltaP_fuel = P1 - P2  # Pa
 
-    L_c = V_c/(1.1 * A_c)
+    if DeltaP_fuel <= 0:
+        raise ValueError("Fuel ΔP must be positive (P1 > P2). Check your pressures.")
 
-    print(f"Chamber Length: {L_c} in")
+    # Cd*A for fuel (m^2)
+    CA_fuel = m_dot_fuel / math.sqrt(2.0 * rhofuel * DeltaP_fuel)
+    # Actual area (m^2)
+    A_fuel = CA_fuel / Cd
+    # Convert to mm^2
+    A_fuel_mm2 = A_fuel * 1e6
 
-    print(f"RP1 Orifice Area: {CA/10**-6} mm^2")  #output in mm^2
+    print(f"Fuel mass flow (Paraffin mix): {m_dot_fuel:.6f} kg/s")
+    print(f"Fuel Orifice C_d*A: {CA_fuel:.6e} m^2")
+    print(f"Fuel Orifice Area (A, C_d={Cd}): {A_fuel_mm2:.3f} mm^2")
 
-    #GOX, compressible flow
-    #mdot = Cd*A * sqrt(g*dens*P0((2/g+1))^((g+1)/(g-1))) #compressible, kg/s
-    CdA = mdot/(math.sqrt(g*rhoGOX*P0*((2/g+1))**((g+1)/(g-1))))
-    #print(f"LOx Orifice Count: {num_LOx_orifices}")
-    print(f"GOX Orifice Area: {CdA/10**-6} mm^2")  #output in mm^2
+    # ----------------------------
+    # N2O orifice (incompressible)
+    # ----------------------------
+    # Pressure drop across N2O orifice
+    DeltaP_ox = P0 - P2  # Pa
+
+    if DeltaP_ox <= 0:
+        raise ValueError("N2O ΔP must be positive (P0 > P2). Check your pressures.")
+
+    # Cd*A for N2O (m^2)
+    CA_ox = m_dot_ox / math.sqrt(2.0 * rhoN2O * DeltaP_ox)
+    # Actual area (m^2)
+    A_ox = CA_ox / Cd
+    # Convert to mm^2
+    A_ox_mm2 = A_ox * 1e6
+
+    print(f"N2O mass flow: {m_dot_ox:.6f} kg/s")
+    print(f"N2O Orifice C_d*A: {CA_ox:.6e} m^2")
+    print(f"N2O Orifice Area (A, C_d={Cd}): {A_ox_mm2:.3f} mm^2")
+
     print("----------------------------------")
+
+    # Return areas in case you want to programmatically use them
+    return {
+        "A_fuel_m2": A_fuel,
+        "A_fuel_mm2": A_fuel_mm2,
+        "A_ox_m2": A_ox,
+        "A_ox_mm2": A_ox_mm2,
+        "L_c_in": L_c,
+        "V_c_in3": V_c
+    }
