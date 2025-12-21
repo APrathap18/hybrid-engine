@@ -29,17 +29,30 @@ fuelName = 'Paraffin_Al_C40_80_10_10'
 pamb = 14.7 # psia
 eps = 4
 
+# Densities (design values)
+rhoN2O  = 750.0  # kg/m^3, liquid N2O at ~20–25 C
+rhofuel = 950.0  # kg/m^3, paraffin/Al/C40 mixture
+
 def main():
     of = 1.4
     pc = 300 # psia
     F = 890 # N
+    C_c = 1.25 # in
+    p1 = 750 * 6894.76 # Pa
+    p2 = 300 * 6894.76 # Pa
+    Cd = 0.7
 
-    At_in = throat_sizing.throat_sizing_function(of, pc, F) # in^2
+    # Chamber geometry (inches)
+    L_star = 45.0  # in
+    D_c    = 1.25   # in
+
+
+    [At_in, m_dot, throat_dia] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
 
     # EPS of 4 estimated
-    plot_OF.plot_OF(pc, eps)
+    plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
 
-    orifice_sizing.orifice_area(At_in, of)
+    orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, p1, p2, rhoN2O, rhofuel, pamb, oxName, fuelName)
     #print(Dt_in)
 
 if __name__ == "__main__":
