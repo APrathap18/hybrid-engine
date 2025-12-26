@@ -1,9 +1,4 @@
-import numpy as np
-from rocketcea.cea_obj import CEA_Obj, add_new_fuel
-import matplotlib.pyplot as plt
-import throat_sizing
-import plot_OF
-import orifice_sizing
+from rocketcea.cea_obj import add_new_fuel
 
 # ----------------------------
 # Custom fuel: Paraffin/Al/C40H82, 80/10/10 by mass
@@ -21,6 +16,11 @@ h,cal=-2.0768E+05     t(k)=298.15
 
 add_new_fuel("Paraffin_Al_C40_80_10_10", paraffin_al_c40_card)
 
+import matplotlib.pyplot as plt
+import throat_sizing
+import plot_OF
+import orifice_sizing
+
 # ----------------------------
 # Globals / design parameters
 # ----------------------------
@@ -34,11 +34,10 @@ rhoN2O  = 750.0  # kg/m^3, liquid N2O at ~20–25 C
 rhofuel = 950.0  # kg/m^3, paraffin/Al/C40 mixture
 
 def main():
-    of = 1.4
+    of = 5
     pc = 300 # psia
     F = 890 # N
-    C_c = 1.25 # in
-    p1 = 750 * 6894.76 # Pa
+    p1 = 360 * 6894.76 # Pa (300 psi chamber + 60 psi drop over injector)
     p2 = 300 * 6894.76 # Pa
     Cd = 0.7
 
