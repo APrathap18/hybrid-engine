@@ -45,7 +45,6 @@ def main():
     L_star = 45.0  # in
     D_c    = 1.25   # in
 
-
     [At_in, m_dot, throat_dia] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
 
     # EPS of 4 estimated
