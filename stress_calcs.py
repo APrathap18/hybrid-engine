@@ -1,5 +1,6 @@
 import math
 from rocketcea.cea_obj_w_units import CEA_Obj
+import numpy as np
 
 PSIA_TO_PA = 6894.757293168
 POISE_TO_PAS = 0.1
@@ -79,3 +80,15 @@ def wall_thickness(pc, of, eps, cstar, d_t, d_c, Tc, burn_time,
     # TODO: continue with wall heating (q"), wall temperature Tw, conduction, stress/thickness, etc.
 
     return h_g, stations
+
+def yield_strength_at_T(T, T_table, sy_table):
+    """
+    T_table: temperatures [K] (monotonic increasing is best)
+    sy_table: yield strengths [Pa] at those temps
+    Returns interpolated yield strength [Pa].
+    """
+    T_table = np.asarray(T_table, dtype=float)
+    sy_table = np.asarray(sy_table, dtype=float)
+    return float(np.interp(T, T_table, sy_table,
+                           left=sy_table[0], right=sy_table[-1]))
+
