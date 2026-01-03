@@ -9,6 +9,8 @@ MCAL_CM_S_K_TO_W_M_K = 0.4184  # RocketCEA default k unit -> W/(m·K)
 # -----------------------------
 # Compressible helpers
 # -----------------------------
+# This formula is valid up until the nozzle where the gas goes supersonic
+# May or may not be able to use this formula after the shock
 def area_mach(M, gamma):
     term = (2.0/(gamma+1.0)) * (1.0 + 0.5*(gamma-1.0)*M*M)
     exp  = (gamma+1.0) / (2.0*(gamma-1.0))

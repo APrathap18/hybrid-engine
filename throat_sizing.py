@@ -71,4 +71,4 @@ def throat_sizing_function(of, pc, F, eps, pamb, n2o_density, paraffin_density, 
     print(f"Exhaust Temperature (K): {Te_K}")
     print("----------------------------------")
 
-    return(At * m_sq_to_in_sq, mdot, Dt_in)
+    return(At * m_sq_to_in_sq, mdot, Dt_m, cstar, Tc_K)

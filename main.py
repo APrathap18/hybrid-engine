@@ -1,5 +1,7 @@
 from rocketcea.cea_obj import add_new_fuel
 
+INCHES_TO_METERS = 0.0254
+
 # ----------------------------
 # Custom fuel: Paraffin/Al/C40H82, 80/10/10 by mass
 # ----------------------------
@@ -20,6 +22,7 @@ import matplotlib.pyplot as plt
 import throat_sizing
 import plot_OF
 import orifice_sizing
+import stress_calcs
 
 # ----------------------------
 # Globals / design parameters
@@ -40,18 +43,35 @@ def main():
     p1 = 360 * 6894.76 # Pa (300 psi chamber + 60 psi drop over injector)
     p2 = 300 * 6894.76 # Pa
     Cd = 0.7
+    FS = 3
+    burn_time = 5 # seconds
 
     # Chamber geometry (inches)
-    L_star = 45.0  # in
+    L_star = 45.0   # in
     D_c    = 1.25   # in
+    L_c_in = 0.0    # in
+    L_c_m = 0.0     # in
+    V_c_in3 = 0.0   # in^3
 
-    [At_in, m_dot, throat_dia] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
+    # Material Properties
+    therm_cond = 5
+    density = 5
+    c_p = 5
+    
+
+    [At_in, m_dot, throat_dia_m, cstar, Tc_K] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
 
     # EPS of 4 estimated
     plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
 
-    orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, p1, p2, rhoN2O, rhofuel, pamb, oxName, fuelName)
+    _, _, L_c_in, V_c_in3 = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, p1, p2, rhoN2O, rhofuel, pamb, oxName, fuelName)
     #print(Dt_in)
 
+    L_c_m = L_c_in * 0.0254
+
+    thick = []
+    h_g = []
+
+    thick, h_g, _, _ = stress_calcs.wall_thickness(pc, of, eps, cstar, throat_dia_m, D_c * INCHES_TO_METERS, Tc_K, burn_time, therm_cond, density, c_p, T_table, yield_strength, oxName, fuelName, FS, L_c_m, p_amb=101325.0, t_max0=0.05)
 if __name__ == "__main__":
     main()
