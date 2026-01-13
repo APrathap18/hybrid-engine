@@ -67,11 +67,11 @@ def main():
     _, _, L_c_in, V_c_in3 = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, p1, p2, rhoN2O, rhofuel, pamb, oxName, fuelName)
     #print(Dt_in)
 
-    L_c_m = L_c_in * 0.0254
+    #L_c_m = L_c_in * 0.0254
 
-    thick = []
-    h_g = []
+    #thick = []
+    #h_g = []
 
-    thick, h_g, _, _ = stress_calcs.wall_thickness(pc, of, eps, cstar, throat_dia_m, D_c * INCHES_TO_METERS, Tc_K, burn_time, therm_cond, density, c_p, T_table, yield_strength, oxName, fuelName, FS, L_c_m, p_amb=101325.0, t_max0=0.05)
+    #thick, h_g, _, _ = stress_calcs.wall_thickness(pc, of, eps, cstar, throat_dia_m, D_c * INCHES_TO_METERS, Tc_K, burn_time, therm_cond, density, c_p, T_table, yield_strength, oxName, fuelName, FS, L_c_m, p_amb=101325.0, t_max0=0.05)
 if __name__ == "__main__":
     main()
