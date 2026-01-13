@@ -1,6 +1,8 @@
 from rocketcea.cea_obj import add_new_fuel
+import nozzle_sizing
 
 INCHES_TO_METERS = 0.0254
+METERS_TO_INCHES = 39.3701
 
 # ----------------------------
 # Custom fuel: Paraffin/Al/C40H82, 80/10/10 by mass
@@ -40,8 +42,8 @@ def main():
     of = 5
     pc = 300 # psia
     F = 890 # N
-    p1 = 360 * 6894.76 # Pa (300 psi chamber + 60 psi drop over injector)
-    p2 = 300 * 6894.76 # Pa
+    p1_pa = 360 * 6894.76 # Pa (300 psi chamber + 60 psi drop over injector)
+    pc_pa = 300 * 6894.76 # Pa
     Cd = 0.7
     FS = 3
     burn_time = 5 # seconds
@@ -49,28 +51,22 @@ def main():
     # Chamber geometry (inches)
     L_star = 45.0   # in
     D_c    = 1.25   # in
-    L_c_in = 0.0    # in
-    L_c_m = 0.0     # in
-    V_c_in3 = 0.0   # in^3
+    conv_angle = 30 # degrees
 
     # Material Properties
     therm_cond = 5
     density = 5
     c_p = 5
     
+    [eps, Cf, A_t, A_e, Dt_m, De_m, m_dot] = nozzle_sizing.nozzle_sizer(F, pc_pa, of, oxName, fuelName)
 
-    [At_in, m_dot, throat_dia_m, cstar, Tc_K] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
+    At_in = A_t / (INCHES_TO_METERS**2)
+    Dt_in = Dt_m / INCHES_TO_METERS
 
-    # EPS of 4 estimated
-    plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
+    # [At, At_in, m_dot, throat_dia, cstar, Tc_K] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
+    #plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
 
-    _, _, L_c_in, V_c_in3 = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, p1, p2, rhoN2O, rhofuel, pamb, oxName, fuelName)
-    #print(Dt_in)
-
-    #L_c_m = L_c_in * 0.0254
-
-    #thick = []
-    #h_g = []
+    _, _, L_straight_in, L_conv_in, V_c_in3 = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, Dt_in, conv_angle, p1_pa, pc_pa, rhoN2O, rhofuel, pamb, oxName, fuelName)
 
     #thick, h_g, _, _ = stress_calcs.wall_thickness(pc, of, eps, cstar, throat_dia_m, D_c * INCHES_TO_METERS, Tc_K, burn_time, therm_cond, density, c_p, T_table, yield_strength, oxName, fuelName, FS, L_c_m, p_amb=101325.0, t_max0=0.05)
 if __name__ == "__main__":

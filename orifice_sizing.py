@@ -1,7 +1,7 @@
 import math as math
 import traceback
 
-def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, P1, P2, rho_ox, rho_fuel, pamb, oxName, fuelName):
+def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, conv_angle, P1, P2, rho_ox, rho_fuel, pamb, oxName, fuelName):
     #print("\n[DEBUG] orifice_area called from:")
     #traceback.print_stack(limit=4)
 
@@ -11,7 +11,7 @@ def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, P1, P2, rho_ox, rho_fuel, p
     """
 
     # m dot of N2O
-    m_dot_ox   = mdot * (of / (1 + of))
+    m_dot_ox = mdot * (of / (1 + of))
 
     # ----------------------------
     # Chamber geometry from L*
@@ -29,10 +29,15 @@ def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, P1, P2, rho_ox, rho_fuel, p
     A_c = math.pi * D_c**2 / 4.0
     print(f"Chamber Area: {A_c:.3f} in^2")
 
-    # Add 10% extra length margin (factor 1.1)
-    L_c = V_c / (1.1 * A_c)
-    print(f"Chamber Length: {L_c:.3f} in")
+    # Treat converging section as a cone with 30 degree angle
+    L_conv = (D_c - D_t) / (2 * math.tan(math.radians(conv_angle)))
+    V_conv = math.pi * L_conv / 3 * ((D_c/2)**2 + (D_c * D_t / 4) + (D_t/2)**2)
 
+    # Find the length of the straight section from this
+    L_straight = (V_c - V_conv)/ A_c
+    
+    print(f"Chamber Length (Straight): {L_straight:.3f} in")
+    print(f"Chamber Length (Converging): {L_conv:.3f} in")
     # ----------------------------
     # N2O orifice (incompressible)
     # ----------------------------
@@ -56,10 +61,5 @@ def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, P1, P2, rho_ox, rho_fuel, p
 
     print("----------------------------------")
 
-    # Return areas in case you want to programmatically use them
-    return {
-        "A_ox_m2": A_ox,
-        "A_ox_mm2": A_ox_mm2,
-        "L_c_in": L_c,
-        "V_c_in3": V_c
-    }
+    return(A_ox, A_ox_mm2, L_straight, L_conv, V_c)
+   
