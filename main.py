@@ -49,7 +49,7 @@ def main():
     burn_time = 5 # seconds
 
     # Chamber geometry (inches)
-    L_star = 45.0   # in
+    L_star = 60.0   # in
     D_c    = 1.25   # in
     conv_angle = 30 # degrees
     div_angle = 15  # degrees

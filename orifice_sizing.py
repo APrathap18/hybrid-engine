@@ -29,6 +29,7 @@ def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, D_e, conv_angle, div_a
     # ----------------------------
     # Chamber geometry from L*
     # ----------------------------
+    print("----------------------------------")
     print("Orifice Sizing Parameters")
     print("----------------------------------")
 
