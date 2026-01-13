@@ -1,11 +1,60 @@
 import math
 from rocketcea.cea_obj import CEA_Obj
-
+import numpy as np
 PA_TO_PSI = 0.000145038
 
-def calculate_wall_temperature(T_initial, delta_t):
-    print("Hello World")
+def calculate_wall_temperature(T_initial, delta_t,T_ad,t,l,l_c,pc,oxname,fuelname,of,eps):
+    """
+    Calculates the wall temperature of the combustion chamber
     
+    :param T_initial: Initial wall temperature (K)
+    :param delta_t: Time step (s)
+    :param T_ad: Adiabatic flame temperature (K)
+    :param t: Total burn time (s)
+    :param l: Total length (m)
+    :param l_c: Chamber length (m)
+    :param pc: Chamber pressure (Pa)
+    :param oxname: Oxidizer name (string)
+    :param fuelname: Fuel type (string)
+    :param of: O/F ratio
+    :param eps: Expansion ratio
+    """
+    
+    T_array = np.arrange(T_initial,T_ad,100)
+    T_aw_list = []
+    X_array = np.arrange(0,l+0.1,0.1)
+    for X in X_array:
+        if X < l_c:
+            M_e = 0 #nozzle geometry
+            T_aw_list.append(calculate_adiabatic_wall_temp(T_ad,pc,M_e,oxname,fuelname,of,eps,location='c'))
+        elif X >= l_c and X < l:
+            M_e = 1 #nozzle geometry
+            T_aw_list.append(calculate_adiabatic_wall_temp(T_ad,pc,M_e,oxname,fuelname,of,eps,location='t'))
+        elif X == l:
+            M_e = 3 #nozzle geometry
+            T_aw_list.append(calculate_adiabatic_wall_temp(T_ad,pc,M_e,oxname,fuelname,of,eps,location='e'))
+    N = 10
+    delta_x = t/N
+    for T_w in T_array:
+        k = 0
+        rho = 0
+        c_p = 0
+        for X in X_array:
+            T_1 = T_initial
+            T_2 = T_initial
+            time_array = np.arrange(0,5,delta_t) #replace 5 with burn_time
+            for t in time_array:
+                T_aw = T_aw_list(X_array.index(X))
+                C = rho * c_p * delta_x
+                G = k/delta_x
+                h_g = calculate_heat_transfer_coefficient(T_w,T_ad,pc,c_star=1,A_t=1,A=1,D_t=1,r_c=1,gamma=1,M=1,oxname='s',fuelname='s',of='s',eps='s',location='tbd') #fix all set values 
+                q_in = h_g*(T_aw-T_w)
+                q_cond = G*(T_1-T_2)
+                T_1 = T_1 + delta_t/(C*(q_in-q_cond))
+                T_2 = T_2 + delta_t/(C*q_cond)
+                print(T_1)
+
+
 def calculate_adiabatic_wall_temp(T_ad, pc, M_e, oxname, fuelname, of, eps, location):
     """
     Finds the adiabatic wall temperature given the adiabatic flame temperature,
