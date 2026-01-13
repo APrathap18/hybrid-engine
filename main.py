@@ -50,7 +50,7 @@ def main():
 
     # Chamber geometry (inches)
     L_star = 60.0   # in
-    D_c    = 1.25   # in
+    D_c    = 2.5   # in
     conv_angle = 30 # degrees
     div_angle = 15  # degrees
 

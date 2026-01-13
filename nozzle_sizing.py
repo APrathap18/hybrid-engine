@@ -147,6 +147,7 @@ def nozzle_sizer(F_N, pc_pa, of, oxname, fuelname, pamb_pa=101325.0):
     print("----------------------------------")
     print("Flow Parameters")
     print("----------------------------------")
+    print(f"ISP (s): {isp} s")
     print(f"Propellant Mass Flow Rate (kg/s): {m_dot} kg/s")
     print(f"Chamber Temperature (K): {Tc_K} K")
     print(f"Throat Temperature (K): {Tt_K} K")
