@@ -29,6 +29,17 @@ def pc_over_pe_from_eps(cea, pc_psia, of, eps):
     return _scalar(pc_over_pe)
 
 def find_eps_for_pe_equals_pamb(cea, pc_psia, of, pamb_psia, eps_low = 1.01, eps_high = 200.0, iters = 70):
+    """
+    Finds the expansion ratio for which the exit pressure equals the ambient pressure
+
+    :param cea: NASA CEA object
+    :param pc_psia: chamber pressure (psia)
+    :param of: of ratio
+    :param pamb_psia: ambient pressure (psia)
+    :param eps_low: lower bound for eps
+    :param eps_high: higher bound for eps
+    :param iters: number of iterations
+    """
     # Ideal value for pc/pe (pe = pamb)
     target = pc_psia / pamb_psia
 
@@ -65,6 +76,16 @@ def find_eps_for_pe_equals_pamb(cea, pc_psia, of, pamb_psia, eps_low = 1.01, eps
 
     
 def nozzle_sizer(F_N, pc_pa, of, oxname, fuelname, pamb_pa=101325.0):
+    """
+    Puts all helper functions together with sizing functions to find the size of each nozzle section
+
+    :param F_N: thrust (N)
+    :param pc_pa: chamber pressure (pa)
+    :param of: of ratio
+    :param oxname: name of oxidizer (string)
+    :param fuelname: name of fuel (string)
+    :param pamb_pa: ambient pressure (pa)
+    """
     cea = CEA_Obj(oxName = oxname, fuelName = fuelname)
 
     pc_psia = pc_pa * PA_TO_PSIA

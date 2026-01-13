@@ -1,13 +1,26 @@
 import math as math
 import traceback
 
-def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, conv_angle, P1, P2, rho_ox, rho_fuel, pamb, oxName, fuelName):
+def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, D_e, conv_angle, div_angle, P1, P2, rho_ox):
     #print("\n[DEBUG] orifice_area called from:")
     #traceback.print_stack(limit=4)
 
     """
-    A_t_in2 : throat area in in^2 (used only for chamber geometry / L* calcs)
-    Cd      : discharge coefficient (same for fuel and oxidizer here)
+    Finds the sizes of various orifices for the engine, include the size of the engine itself
+    
+    :param A_t_in2: Throat area in in^2
+    :param of: of ratio
+    :param Cd: fuel coefficient
+    :param mdot: mass flow rate (kg/s)
+    :param L_star: characteristic length (in)
+    :param D_c: chamber diameter (in)
+    :param D_t: throat diameter (in)
+    :param D_e: exit diameter (in)
+    :param conv_angle: convergence angle (degrees)
+    :param div_angle: divergence angle (degrees)
+    :param P1: inlet pressure (pa)
+    :param P2: chamber pressure (pa)
+    :param rho_ox: density of oxidizer (kg/m^3)
     """
 
     # m dot of N2O
@@ -37,7 +50,14 @@ def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, conv_angle, P1, P2, rh
     L_straight = (V_c - V_conv)/ A_c
     
     print(f"Chamber Length (Straight): {L_straight:.3f} in")
+    print(f"Convergence Angle: {conv_angle} degrees")
     print(f"Chamber Length (Converging): {L_conv:.3f} in")
+
+    # Length of diverging section for conical nozzle
+    L_div = (D_e - D_t) / (2 * math.tan(math.radians(div_angle)))  
+    print(f"Divergence Angle: {div_angle} degrees")
+    print(f"Length of Diverging Section (Straight Nozzle: {L_div:.3f} in")
+
     # ----------------------------
     # N2O orifice (incompressible)
     # ----------------------------
