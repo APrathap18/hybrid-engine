@@ -2,6 +2,7 @@ import math
 from rocketcea.cea_obj import CEA_Obj
 import numpy as np
 PA_TO_PSI = 0.000145038
+cal_to_kj = 4184
 
 def calculate_wall_temperature(T_initial, delta_t,T_ad,t,l,l_c,pc,oxname,fuelname,of,eps):
     """
@@ -10,7 +11,7 @@ def calculate_wall_temperature(T_initial, delta_t,T_ad,t,l,l_c,pc,oxname,fuelnam
     :param T_initial: Initial wall temperature (K)
     :param delta_t: Time step (s)
     :param T_ad: Adiabatic flame temperature (K)
-    :param t: Total burn time (s)
+    :param t: Thickness (m)
     :param l: Total length (m)
     :param l_c: Chamber length (m)
     :param pc: Chamber pressure (Pa)
@@ -23,6 +24,7 @@ def calculate_wall_temperature(T_initial, delta_t,T_ad,t,l,l_c,pc,oxname,fuelnam
     T_array = np.arrange(T_initial,T_ad,100)
     T_aw_list = []
     X_array = np.arrange(0,l+0.1,0.1)
+    X_dict = {i:  round((i*0.1),1) for i in range(1, int(l / 0.1) + 2)}
     for X in X_array:
         if X < l_c:
             M_e = 0 #nozzle geometry
@@ -35,10 +37,14 @@ def calculate_wall_temperature(T_initial, delta_t,T_ad,t,l,l_c,pc,oxname,fuelnam
             T_aw_list.append(calculate_adiabatic_wall_temp(T_ad,pc,M_e,oxname,fuelname,of,eps,location='e'))
     N = 10
     delta_x = t/N
+    rho_dict = {300:7894,400:7860,500:7823,600:7783,700:7742,800:7698,900:7652,1000:7603,1100:7552,1200:7499,1300:7444,1400:7386,1500:7326,1600:7264,1700:7199} #replace with real densities. need to think about melted steel
+    c_p_dict = {300:0.1219,400:0.1251,500:0.1283,600:0.1315,700:0.1348,800:0.1380,900:0.1412,1000:0.1444,1100:0.1476,1200:0.1509,1300:0.1541,1400:0.1573,1500:0.1605,1600:0.1638,1700:0.1670,1800:0.1900}
+    k_dict = {300:12.97,400:14.59,500:16.2,600:17.82,700:19.44,800:21.06,900:22.67,1000:24.29,1100:25.91,1200:27.53,1300:29.14,1400:30.76,1500:32.38,1600:34.00,1700:3561,1800:1814}
     for T_w in T_array:
-        k = 0
-        rho = 0
-        c_p = 0
+        n_T = round(T_w,-2)
+        k = k_dict(n_T) + (100)/(k_dict(round((n_T+100),-2)) - k_dict(n_T))*(T_aw - n_T)
+        rho = rho_dict(n_T) + (100)/(rho_dict(round((n_T+100),-2)) - rho_dict(n_T))*(T_aw - n_T) #only works for temps under 1700K, where 304SS melts
+        c_p = (c_p_dict(n_T) + (100)/(c_p_dict(round((n_T+100),-2)) - c_p_dict(n_T))*(T_aw - n_T))*4180
         for X in X_array:
             T_1 = T_initial
             T_2 = T_initial
