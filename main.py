@@ -7,18 +7,18 @@ METERS_TO_INCHES = 39.3701
 # ----------------------------
 # Custom fuel: Paraffin/Al/C40H82, 80/10/10 by mass
 # ----------------------------
-paraffin_al_c40_card = """
-fuel Paraffin80   C 73.0  H 148.0   wt%=80.0
-h,cal=-4.4464E+05     t(k)=298.15
+paraffin_htpb_carbon_card = """
+fuel Paraffin80     C 73.0    H 148.0               wt%=85.0
+h,cal=-4.4464E+05   t(k)=298.15
 
-fuel Aluminum10  AL 1.0             wt%=10.0
-h,cal=0.0             t(k)=298.15
+fuel HTPB12         C 7.3165  H 10.3360  O 0.1063   wt%=12.0
+h,cal=1200.0        t(k)=298.15          rho = 0.9220
 
-fuel C40H82_10   C 40.0  H 82.0     wt%=10.0
-h,cal=-2.0768E+05     t(k)=298.15
+fuel CarbonBlack3   C 1.0                           wt%=3.0
+h,cal=0             t(k)=298.15
 """
 
-add_new_fuel("Paraffin_Al_C40_80_10_10", paraffin_al_c40_card)
+add_new_fuel("Paraffin_HTPB_carbon_black", paraffin_htpb_carbon_card)
 
 import matplotlib.pyplot as plt
 import throat_sizing
@@ -30,7 +30,7 @@ import stress_calcs
 # Globals / design parameters
 # ----------------------------
 oxName = 'N2O'
-fuelName = 'Paraffin_Al_C40_80_10_10'
+fuelName = 'Paraffin_HTPB_carbon_black'
 pamb = 14.7 # psia
 eps = 4
 
@@ -39,7 +39,7 @@ rhoN2O  = 750.0  # kg/m^3, liquid N2O at ~20–25 C
 rhofuel = 950.0  # kg/m^3, paraffin/Al/C40 mixture
 
 def main():
-    of = 5
+    of = 6
     pc = 300 # psia
     F = 890 # N
     p1_pa = 360 * 6894.76 # Pa (300 psi chamber + 60 psi drop over injector)
@@ -66,7 +66,7 @@ def main():
     De_in = De_m / INCHES_TO_METERS
 
     # [At, At_in, m_dot, throat_dia, cstar, Tc_K] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
-    #plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
+    plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
 
     _, _, L_straight_in, L_conv_in, V_c_in3 = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, Dt_in, De_in, conv_angle, div_angle, p1_pa, pc_pa, rhoN2O)
 
