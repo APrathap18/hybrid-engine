@@ -23,16 +23,15 @@ def calculate_wall_temperature(T_initial, delta_t,T_ad,t,l,l_c,pc,oxname,fuelnam
     
     T_array = np.arrange(T_initial,T_ad,100)
     T_aw_list = []
-    X_array = np.arrange(0,l+0.1,0.1)
-    X_dict = {i:  round((i*0.1),1) for i in range(1, int(l / 0.1) + 2)}
-    for X in X_array:
-        if X < l_c:
+    X_dict = {i:  round((i*0.1),1) for i in range(0, int(l / 0.1) + 2)}
+    for X in X_dict:
+        if X_dict(X) < l_c:
             M_e = 0 #nozzle geometry
             T_aw_list.append(calculate_adiabatic_wall_temp(T_ad,pc,M_e,oxname,fuelname,of,eps,location='c'))
-        elif X >= l_c and X < l:
+        elif X_dict(X) >= l_c and X < l:
             M_e = 1 #nozzle geometry
             T_aw_list.append(calculate_adiabatic_wall_temp(T_ad,pc,M_e,oxname,fuelname,of,eps,location='t'))
-        elif X == l:
+        elif X_dict(X) == l:
             M_e = 3 #nozzle geometry
             T_aw_list.append(calculate_adiabatic_wall_temp(T_ad,pc,M_e,oxname,fuelname,of,eps,location='e'))
     N = 10
@@ -42,15 +41,15 @@ def calculate_wall_temperature(T_initial, delta_t,T_ad,t,l,l_c,pc,oxname,fuelnam
     k_dict = {300:12.97,400:14.59,500:16.2,600:17.82,700:19.44,800:21.06,900:22.67,1000:24.29,1100:25.91,1200:27.53,1300:29.14,1400:30.76,1500:32.38,1600:34.00,1700:3561,1800:1814}
     for T_w in T_array:
         n_T = round(T_w,-2)
-        k = k_dict(n_T) + (100)/(k_dict(round((n_T+100),-2)) - k_dict(n_T))*(T_aw - n_T)
+        k = k_dict(n_T) + (100)/(k_dict(round((n_T+100),-2)) - k_dict(n_T))*(T_aw - n_T) #assumes roughly linear between steps
         rho = rho_dict(n_T) + (100)/(rho_dict(round((n_T+100),-2)) - rho_dict(n_T))*(T_aw - n_T) #only works for temps under 1700K, where 304SS melts
         c_p = (c_p_dict(n_T) + (100)/(c_p_dict(round((n_T+100),-2)) - c_p_dict(n_T))*(T_aw - n_T))*4180
-        for X in X_array:
+        for X in X_dict:
             T_1 = T_initial
             T_2 = T_initial
             time_array = np.arrange(0,5,delta_t) #replace 5 with burn_time
             for t in time_array:
-                T_aw = T_aw_list(X_array.index(X))
+                T_aw = T_aw_list(X)
                 C = rho * c_p * delta_x
                 G = k/delta_x
                 h_g = calculate_heat_transfer_coefficient(T_w,T_ad,pc,c_star=1,A_t=1,A=1,D_t=1,r_c=1,gamma=1,M=1,oxname='s',fuelname='s',of='s',eps='s',location='tbd') #fix all set values 
