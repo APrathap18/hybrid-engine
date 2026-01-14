@@ -1,5 +1,6 @@
 from rocketcea.cea_obj import add_new_fuel
 import nozzle_sizing
+import structural_calcs
 
 INCHES_TO_METERS = 0.0254
 METERS_TO_INCHES = 39.3701
@@ -64,12 +65,14 @@ def main():
     At_in = A_t / (INCHES_TO_METERS**2)
     Dt_in = Dt_m / INCHES_TO_METERS
     De_in = De_m / INCHES_TO_METERS
+    Dc_m = D_c * INCHES_TO_METERS
 
     # [At, At_in, m_dot, throat_dia, cstar, Tc_K] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
     plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
 
     _, _, L_straight_in, L_conv_in, V_c_in3 = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, Dt_in, De_in, conv_angle, div_angle, p1_pa, pc_pa, rhoN2O)
+    
+    fos = structural_calcs.hoop_stress_calcs(Dc_m/2, 0.018, pc_pa, 9.65e7)
 
-    #thick, h_g, _, _ = stress_calcs.wall_thickness(pc, of, eps, cstar, throat_dia_m, D_c * INCHES_TO_METERS, Tc_K, burn_time, therm_cond, density, c_p, T_table, yield_strength, oxName, fuelName, FS, L_c_m, p_amb=101325.0, t_max0=0.05)
 if __name__ == "__main__":
     main()
