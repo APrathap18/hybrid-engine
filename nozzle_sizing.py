@@ -131,6 +131,9 @@ def nozzle_sizer(F_N, pc_pa, of, oxname, fuelname, pamb_pa=101325.0):
     # get exhaust velocity
     v_e = isp * 9.80655
 
+    # local speed of sound at exit
+    a_e = math.sqrt(gamma * Rspec * Te_K)
+
     # Get mass flow rate (kg/s)
     m_dot = pc_pa * A_t / cstar 
 
@@ -148,14 +151,16 @@ def nozzle_sizer(F_N, pc_pa, of, oxname, fuelname, pamb_pa=101325.0):
     print("Flow Parameters")
     print("----------------------------------")
     print(f"ISP (s): {isp} s")
+    print(f"C-Star (m/s): {cstar} m/s")
     print(f"Propellant Mass Flow Rate (kg/s): {m_dot} kg/s")
     print(f"Chamber Temperature (K): {Tc_K} K")
     print(f"Throat Temperature (K): {Tt_K} K")
     print(f"Exhaust Temperature (K): {Te_K} K")
+    print(f"Mach at Exit: {v_e / a_e}")
     print(f"Throat Velocity (m/s): {a_t} m/s")
     print(f"Exit Velocity (m/s): {v_e} m/s")
 
-    return(eps, Cf, A_t, A_e, D_t, D_e, m_dot)
+    return(eps, Cf, A_t, A_e, D_t, D_e, m_dot, v_e/a_e, Tc_K, cstar)
 
 # def nozzle_sizing(F, pc, pe, of, gamma, oxname, fuelname):
 #     # creates CEA object with Ox and Fuel

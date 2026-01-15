@@ -1,6 +1,7 @@
 from rocketcea.cea_obj import add_new_fuel
 import nozzle_sizing
 import structural_calcs
+import thermal_calcs
 
 INCHES_TO_METERS = 0.0254
 METERS_TO_INCHES = 39.3701
@@ -60,7 +61,7 @@ def main():
     density = 5
     c_p = 5
     
-    [eps, Cf, A_t, A_e, Dt_m, De_m, m_dot] = nozzle_sizing.nozzle_sizer(F, pc_pa, of, oxName, fuelName)
+    [eps, Cf, A_t, A_e, Dt_m, De_m, m_dot, mach_exit, T0, cstar] = nozzle_sizing.nozzle_sizer(F, pc_pa, of, oxName, fuelName)
 
     At_in = A_t / (INCHES_TO_METERS**2)
     Dt_in = Dt_m / INCHES_TO_METERS
@@ -70,9 +71,12 @@ def main():
     # [At, At_in, m_dot, throat_dia, cstar, Tc_K] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
     plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
 
-    _, _, L_straight_in, L_conv_in, V_c_in3 = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, Dt_in, De_in, conv_angle, div_angle, p1_pa, pc_pa, rhoN2O)
+    _, _, L_straight_in, L_conv_in, V_c_in3, L_div_in = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, Dt_in, De_in, conv_angle, div_angle, p1_pa, pc_pa, rhoN2O)
     
+    L_total = L_straight_in * INCHES_TO_METERS + L_conv_in * INCHES_TO_METERS + L_div_in * INCHES_TO_METERS
+
     fos = structural_calcs.hoop_stress_calcs(Dc_m/2, 0.018, pc_pa, 9.65e7)
 
+    thermal_calcs.calculate_wall_temperature(300, 0.1, T0, 0.01, pc_pa, oxName, fuelName, of, eps, mach_exit, burn_time, Dc_m, cstar, Dt_m, De_m)
 if __name__ == "__main__":
     main()

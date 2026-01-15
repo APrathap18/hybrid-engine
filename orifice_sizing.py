@@ -82,5 +82,5 @@ def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, D_e, conv_angle, div_a
 
     print("----------------------------------")
 
-    return(A_ox, A_ox_mm2, L_straight, L_conv, V_c)
+    return(A_ox, A_ox_mm2, L_straight, L_conv, V_c, L_div)
    
