@@ -69,7 +69,7 @@ def plot_OF(pc, eps, oxName, fuelName, pamb):
     axes = axes.ravel()
 
     # graph title
-    fig.suptitle(f'{oxName}/{fuelName} @ Pc = {pc} psia, eps = {eps}, Pamb = {pamb} psia', fontsize=14, fontweight="bold")
+    fig.suptitle(f'{oxName}/{fuelName} @ Pc = {pc:.1f} psia, eps = {eps:.1f}, Pamb = {pamb:.1f} psia', fontsize=14, fontweight="bold")
 
     # suplot 1, chamber temp
     axes[0].plot(of_list, comb_temp, marker='o', linestyle='-')

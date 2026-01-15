@@ -48,7 +48,7 @@ def main():
     pc_pa = 300 * 6894.76 # Pa
     Cd = 0.7
     FS = 3
-    burn_time = 5 # seconds
+    burn_time = 20 # seconds
 
     # Chamber geometry (inches)
     L_star = 60.0   # in
@@ -60,6 +60,7 @@ def main():
     therm_cond = 5
     density = 5
     c_p = 5
+    T_guess = 1200 # K
     
     [eps, Cf, A_t, A_e, Dt_m, De_m, m_dot, mach_exit, T0, cstar] = nozzle_sizing.nozzle_sizer(F, pc_pa, of, oxName, fuelName)
 
@@ -75,8 +76,8 @@ def main():
     
     L_total = L_straight_in * INCHES_TO_METERS + L_conv_in * INCHES_TO_METERS + L_div_in * INCHES_TO_METERS
 
-    fos = structural_calcs.hoop_stress_calcs(Dc_m/2, 0.018, pc_pa, 9.65e7)
+    thermal_calcs.calculate_wall_temperature(T_guess, 300, 0.2, T0, 0.018, pc_pa, oxName, fuelName, of, eps, mach_exit, burn_time, Dc_m, cstar, Dt_m, De_m)
 
-    thermal_calcs.calculate_wall_temperature(300, 0.1, T0, 0.01, pc_pa, oxName, fuelName, of, eps, mach_exit, burn_time, Dc_m, cstar, Dt_m, De_m)
+    fos = structural_calcs.hoop_stress_calcs(Dc_m/2, 0.018, pc_pa, 9.65e7)
 if __name__ == "__main__":
     main()
