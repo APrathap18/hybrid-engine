@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 PA_TO_PSI = 0.000145038
 cal_to_kj = 4184
 
-def calculate_wall_temperature(T_guess, T_initial, delta_t,T_ad,t_wall,pc,oxname,fuelname,of,eps,mach_exit,burn_time,D_c,c_star,D_t,D_e,emissivity = 0.3, boltzmann = 5.67e-8, T_amb = 298):
+def calculate_wall_temperature(T_initial, delta_t,T_ad,t_wall,pc,oxname,fuelname,of,eps,mach_exit,burn_time,D_c,c_star,D_t,D_e,emissivity = 0.3, boltzmann = 5.67e-8, T_amb = 298):
     """
     Calculates the wall temperature of the combustion chamber
     
@@ -24,7 +24,6 @@ def calculate_wall_temperature(T_guess, T_initial, delta_t,T_ad,t_wall,pc,oxname
     :param eps: Expansion ratio
     """
     
-    T_array = np.linspace(T_initial,T_ad,100)
     T_aw_list = []
     locations = ['c', 't', 'e']
     #X_dict = {i:  round((i*0.1),1) for i in range(0, int(l / 0.1) + 2)}
@@ -52,10 +51,6 @@ def calculate_wall_temperature(T_guess, T_initial, delta_t,T_ad,t_wall,pc,oxname
     k_dict   = {300:12.97,400:14.59,500:16.20,600:17.82,700:19.44,800:21.06,900:22.67,1000:24.29,1100:25.91,1200:27.53,1300:29.14,1400:30.76,1500:32.38,1600:34.00,1700:35.61,1800:18.14}  # fixed obvious typos
     
     A_t_m2 = math.pi * (D_t / 2)**2
-
-    
-
-    print(f"Guessed Wall Temperature: {T_guess} K")
 
     time_array = np.arange(0, burn_time + 1e-12, delta_t)
 
@@ -123,7 +118,7 @@ def calculate_wall_temperature(T_guess, T_initial, delta_t,T_ad,t_wall,pc,oxname
     })
 
     print(df.to_string(index=False, float_format=lambda x: f"{x:.1f}"))
-    plot_thermal_data(time_array, chamber_wall_hot_temp, throat_wall_hot_temp, exit_wall_hot_temp, chamber_wall_outer_temp, throat_wall_outer_temp, exit_wall_outer_temp, oxname, fuelname, pc, eps, T_guess)
+    plot_thermal_data(time_array, chamber_wall_hot_temp, throat_wall_hot_temp, exit_wall_hot_temp, chamber_wall_outer_temp, throat_wall_outer_temp, exit_wall_outer_temp, oxname, fuelname, pc, eps)
 
     # for T_w in T_array:
     #     n_T = int(round(T_w / 100.0) * 100)
@@ -187,7 +182,7 @@ def calculate_wall_temperature(T_guess, T_initial, delta_t,T_ad,t_wall,pc,oxname
 
         
         
-def plot_thermal_data(time_array, chamber_temp, throat_temp, exit_temp, chamber_outer, throat_outer, exit_outer, oxName, fuelName, pc, eps, T_guess):
+def plot_thermal_data(time_array, chamber_temp, throat_temp, exit_temp, chamber_outer, throat_outer, exit_outer, oxName, fuelName, pc, eps):
     # creates a 3 x 3 subplot
     fig, axes = plt.subplots(3, 3, figsize=(10, 8), sharex=True)
 
@@ -195,7 +190,7 @@ def plot_thermal_data(time_array, chamber_temp, throat_temp, exit_temp, chamber_
     axes = axes.ravel()
 
     # graph title
-    fig.suptitle(f'{oxName}/{fuelName} @ Pc = {pc:.1f} psia, eps = {eps:.1f}, T_guess = {T_guess:.1f} K', fontsize=14, fontweight="bold")
+    fig.suptitle(f'{oxName}/{fuelName} @ Pc = {pc:.1f} psia, eps = {eps:.1f}', fontsize=14, fontweight="bold")
 
     # suplot 1, chamber temp inner wall
     axes[0].plot(time_array, chamber_temp, marker='o', linestyle='-')
