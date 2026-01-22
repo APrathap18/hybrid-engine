@@ -58,7 +58,7 @@ def main():
 
     # Material Properties
     delta_t = 0.2 # seconds
-    thickness = 0.01 # meters
+    thickness = 0.0127 # meters
     
     [eps, Cf, A_t, A_e, Dt_m, De_m, m_dot, mach_exit, T0, cstar] = nozzle_sizing.nozzle_sizer(F, pc_pa, of, oxName, fuelName)
 

@@ -44,7 +44,7 @@ def plot_OF(pc, eps, oxName, fuelName, pamb):
                 cstar = cea_obj.get_Cstar(Pc = pc, MR = of) * 0.3048
 
                 # 5) Get ISP_ambient = (CFamb * C*) / g0
-                Isp = (cstar * CFamb) / 9.80665
+                isp = cea_obj.get_Throat_Isp(Pc=pc, MR=of, frozen=0)
 
                 # Since everything is successful, append to list
 
@@ -57,7 +57,7 @@ def plot_OF(pc, eps, oxName, fuelName, pamb):
                 exhaust_temp.append(Te_K)
 
                 # add isp to list
-                isp_list.append(Isp)
+                isp_list.append(isp)
             except Exception as e:
                 # prevents errors
                 print(f"Skipping MR = {of:.2f}: {e}")

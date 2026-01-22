@@ -115,8 +115,8 @@ def nozzle_sizer(F_N, pc_pa, of, oxname, fuelname, pamb_pa=101325.0):
     # Get cstar and convert from ft/s to m/s
     cstar = cea.get_Cstar(Pc = pc_psia, MR = of) * 0.3048
     
-    # Get ISP_ambient = (CFamb * C*) / g0
-    isp = (cstar * Cf) / 9.80665
+    # Get ISP_ambient
+    isp = cea.get_Throat_Isp(Pc=pc_psia, MR=of, frozen=0)
 
     # Find molar weight and gamma
     mw, gamma = cea.get_Chamber_MolWt_gamma(Pc=pc_psia, MR=of, eps=eps)
