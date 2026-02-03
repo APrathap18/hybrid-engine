@@ -139,7 +139,7 @@ def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,
             R_v2n = abl_t/k_abl + delta_x/k_bod     #Resistance from virgin material to nozzle
             R_c2n = char_t/k_char + delta_x/k_bod   #Resistance from char to nozzle
 
-            if charred == False:            
+            if charred == False and ablated == False:            
                 h_g = calculate_heat_transfer_coefficient(T_v,T_ad,pc,c_star=c_star,A_t=A_t_m2,A=slice_area,D_t=D_t,r_c=1,M=M,oxname=oxname,fuelname=fuelname,of=of,eps=eps,location=location)
                 q_conv = h_g*(T_aw - T_v)
                 m_rate = m_loss_rate_dict[int(round(q_conv,-2))]
@@ -156,16 +156,18 @@ def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,
                 q_cond_out = G*(T_1 - T_2)
                 q_rad_out = emissivity * boltzmann * (T_2**4 - T_amb**4)
                 q_rad_in = emis_char * boltzmann * (T_char**4 - T_gas**4)
-                m_abl_rate = m_abl_loss_rate_dict[int(round(q_cond_c2v,-2))]
+                
+                m_abl_rate = m_abl_loss_rate_dict[int(round(q_cond_c2v,-2))] 
                 abl_rate = m_abl_rate/rho_abl
                 abl_t -= abl_rate*delta_t
                 m_char_rate = m_char_loss_rate_dict[int(round(q_conv,-2))] #may need to fix, chem depedent and gas temp
-                char_rate = m_char_rate/rho_char
+                char_rate = m_char_rate/rho_char    #if it is just mass loss
                 if abl_t <= 0:
                     abl_t = 0
                     ablated = True
                 char_t = char_t + abl_rate*delta_t - char_rate*delta_t
                 q_abl = m_abl_rate*H_abl
+                q_char = m_char_rate*H_abl
                 T_char += (q_conv - q_cond_c2v - q_rad_in)*(delta_t)/(char_t*rho_char*cp_char)
                 T_v += (q_cond_c2v - q_cond_v2n - q_abl)*(delta_t)/(abl_t*rho_abl*cp_abl)
                 T_1 += (q_cond_v2n - q_cond_out)*(delta_t)/(delta_x*rho_bod*cp_bod)
@@ -173,8 +175,20 @@ def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,
             elif charred == True and ablated == True:
                 h_g = calculate_heat_transfer_coefficient(T_char,T_ad,pc,c_star=c_star,A_t=A_t_m2,A=slice_area,D_t=D_t,r_c=1,M=M,oxname=oxname,fuelname=fuelname,of=of,eps=eps,location=location)
                 q_conv = h_g*(T_aw - T_char)
-                q_cond_
-
+                q_cond_c2n = (T_char - T_1)/R_c2n
+                q_cond_out = (T_1 - T_2)*C
+                q_char = m_char_rate * H_abl
+                q_rad_out = emissivity * boltzmann * (T_2**4 - T_amb**4)
+                m_char_rate = m_char_loss_rate_dict[int(round(q_conv,-2))] #may need to fix, chem depedent and gas temp
+                char_rate = m_char_rate/rho_char
+                char_t -= char_rate*delta_t
+                if charred <= 0:
+                    charred = False
+                    char_t = 0
+                
+                T_char += (q_conv - q_cond_c2n - q_char)*(delta_t)/(char_t*rho_char*cp_char)
+                T_1 += (q_cond_c2n - q_cond_out)*(delta_t)/C
+                T_2 += (q_cond_out - q_rad_out)*(delta_t)/C
         
                 
 
