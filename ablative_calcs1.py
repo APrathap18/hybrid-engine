@@ -11,7 +11,7 @@ from rocketcea.cea_obj import CEA_Obj
 
 
 
-def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,mach_exit,burn_time,D_c,c_star,D_t,D_e,emissivity = 0.3, boltzmann = 5.67e-8, T_amb = 298, abl_t0 = 0.25, emis_char = 0.7):
+def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,mach_exit,burn_time,D_c,c_star,D_t,D_e,emissivity = 0.3, boltzmann = 5.67e-8, T_amb = 298, abl_t0 = 0.25, emis_char = 0.7):
     """
     Calculates the wall temperature of the combustion chamber
     
@@ -53,30 +53,35 @@ def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,
     c_p_dict = {300:0.1219,400:0.1251,500:0.1283,600:0.1315,700:0.1348,800:0.1380,900:0.1412,1000:0.1444,1100:0.1476,1200:0.1509,1300:0.1541,1400:0.1573,1500:0.1605,1600:0.1638,1700:0.1670,1800:0.1900}
     k_dict   = {300:12.97,400:14.59,500:16.20,600:17.82,700:19.44,800:21.06,900:22.67,1000:24.29,1100:25.91,1200:27.53,1300:29.14,1400:30.76,1500:32.38,1600:34.00,1700:35.61,1800:18.14}  # fixed obvious typos
     
-    ablative_dict = {'SiO2': {"chem_stable": True,
-                               char_rho_dict: {}, 
-                               abl_cp_dict: {}, 
-                               abl_k_dict: {},
-                               m_loss_rate_dict: {},
-                               char_cp_dict: {},
-                               char_k_dict: {},},
-                     'Carbon_phenolic': {'chem_stable': True,
-                                        char_rho_dict: {}, 
-                                        abl_cp_dict: {}, 
-                                        abl_k_dict: {},
-                                        m_loss_rate_dict: {},
-                                        char_cp_dict: {},
-                                        char_k_dict: {}}}
+    ablative_dict = {'SiO2_phenolic': {"chem_stable": True,
+                               'char_rho': {}, 
+                               'abl_cp': {}, 
+                               'abl_k': {},
+                               'm_loss_rate': {},
+                               'char_cp': {},
+                               'char_k': {},
+                               'char_loss_rate': {},
+                               'T_g': 1490},
+                     'Carbon_phenolic': {'chem_stable': False,
+                                        'char_rho': {}, 
+                                        'abl_cp': {}, 
+                                        'abl_k': {},
+                                        'm_loss_rate': {},
+                                        'char_cp': {},
+                                        'char_k': {},
+                                        'char_loss_rate': {},
+                                        'T_g': 3000}}
                                
-                            
+    char_rho_dict = ablative_dict[ablative]['char_rho']                        
+    char_k_dict = ablative_dict[ablative]['char_k']
+    m_char_loss_rate_dict = ablative_dict[ablative]['char_loss_rate']
+    char_cp_dict = ablative_dict[ablative]['char_cp']
     
-    abl_cp_dict = {}
-    abl_k_dict = {}
-    m_loss_rate_dict = {}
-
-    char_cp_dict = {}
-    char_k_dict = {}
-    char_rho_dict = {}
+    abl_rho_dict = ablative_dict[ablative]['abl_rho']
+    abl_k_dict = ablative_dict[ablative]['abl_k']
+    abl_cp_dict = ablative_dict[ablative]['abl_cp']
+    m_abl_loss_rate_dict = ablative_dict[ablative]['m_loss_rate']
+    
 
 
     A_t_m2 = math.pi * (D_t / 2)**2
