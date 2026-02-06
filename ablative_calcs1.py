@@ -53,7 +53,23 @@ def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,
     c_p_dict = {300:0.1219,400:0.1251,500:0.1283,600:0.1315,700:0.1348,800:0.1380,900:0.1412,1000:0.1444,1100:0.1476,1200:0.1509,1300:0.1541,1400:0.1573,1500:0.1605,1600:0.1638,1700:0.1670,1800:0.1900}
     k_dict   = {300:12.97,400:14.59,500:16.20,600:17.82,700:19.44,800:21.06,900:22.67,1000:24.29,1100:25.91,1200:27.53,1300:29.14,1400:30.76,1500:32.38,1600:34.00,1700:35.61,1800:18.14}  # fixed obvious typos
     
-    char_rho_dict = {}
+    ablative_dict = {'SiO2': {"chem_stable": True,
+                               char_rho_dict: {}, 
+                               abl_cp_dict: {}, 
+                               abl_k_dict: {},
+                               m_loss_rate_dict: {},
+                               char_cp_dict: {},
+                               char_k_dict: {},},
+                     'Carbon_phenolic': {'chem_stable': True,
+                                        char_rho_dict: {}, 
+                                        abl_cp_dict: {}, 
+                                        abl_k_dict: {},
+                                        m_loss_rate_dict: {},
+                                        char_cp_dict: {},
+                                        char_k_dict: {}}}
+                               
+                            
+    
     abl_cp_dict = {}
     abl_k_dict = {}
     m_loss_rate_dict = {}
@@ -146,7 +162,10 @@ def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,
                 abl_rate = m_rate/rho_abl
                 abl_t -= abl_rate*delta_t
                 char_t = abl_t0 - abl_t
-                T_char = max(T_initial, (T_char + delta_t/(rho_char*cp_char*char_t)*(q_conv-(m_rate*H_abl))))
+                T_char = max(T_initial, (T_char + delta_t/(rho_char*cp_char*char_t)*(q_conv-(m_rate*H_abl)))) #for slab
+                if ablative_dict[ablative]["chem_stable"] == True:
+                    T_s_char = T_initial - (q_conv-(m_rate*H_abl))*char_t/k_char
+                    T_i_char = T_initial
                 charred == True
             elif charred == True and ablated == False:
                 h_g = calculate_heat_transfer_coefficient(T_char,T_ad,pc,c_star=c_star,A_t=A_t_m2,A=slice_area,D_t=D_t,r_c=1,M=M,oxname=oxname,fuelname=fuelname,of=of,eps=eps,location=location)
@@ -179,7 +198,9 @@ def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,
                 q_cond_out = (T_1 - T_2)*C
                 
                 q_rad_out = emissivity * boltzmann * (T_2**4 - T_amb**4)
-                if ablative['chem_stable'] == True
+                if ablative_list[ablative]['chem_stable'] == True:
+                    T_char
+
                     
                 m_char_rate = m_char_loss_rate_dict[int(round(q_conv,-2))] #may need to fix, chem depedent and gas temp
                 char_rate = m_char_rate/rho_char
