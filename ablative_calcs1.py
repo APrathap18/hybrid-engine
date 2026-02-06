@@ -177,33 +177,30 @@ def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,
                 q_conv = h_g*(T_aw - T_char)
                 q_cond_c2n = (T_char - T_1)/R_c2n
                 q_cond_out = (T_1 - T_2)*C
-                q_char = m_char_rate * H_abl
+                
                 q_rad_out = emissivity * boltzmann * (T_2**4 - T_amb**4)
+                if ablative['chem_stable'] == True
+                    
                 m_char_rate = m_char_loss_rate_dict[int(round(q_conv,-2))] #may need to fix, chem depedent and gas temp
                 char_rate = m_char_rate/rho_char
                 char_t -= char_rate*delta_t
                 if charred <= 0:
                     charred = False
                     char_t = 0
-                
+                T_v = 'none'
                 T_char += (q_conv - q_cond_c2n - q_char)*(delta_t)/(char_t*rho_char*cp_char)
                 T_1 += (q_cond_c2n - q_cond_out)*(delta_t)/C
                 T_2 += (q_cond_out - q_rad_out)*(delta_t)/C
-        
+
+            elif charred == False and ablated == True:
+                h_g = calculate_heat_transfer_coefficient(T_1,T_ad,pc,c_star=c_star,A_t=A_t_m2,A=slice_area,D_t=D_t,r_c=1,M=M,oxname=oxname,fuelname=fuelname,of=of,eps=eps,location=location)
+                q_conv = h_g*(T_aw - T_1)
+
                 
 
 
 
-            if ablated == False:
-                h_g = calculate_heat_transfer_coefficient(T_1,T_ad,pc,c_star=c_star,A_t=A_t_m2,A=slice_area,D_t=D_t,r_c=1,M=M,oxname=oxname,fuelname=fuelname,of=of,eps=eps,location=location) #fix all set values 
-                q_in = h_g*(T_aw-T_1)
-                q_cond1 = G*(T_1-T_2)
-                q_cond2 = G*(T_2-T_3)
-                q_rad = emissivity * boltzmann * (T_ad**4 - T_1**4)
-                q_rad2 = emissivity * boltzmann * (T_2 ** 4 - T_amb ** 4)
-                T_1 = T_1 + (delta_t / C) * (q_in - q_cond1 + q_rad) - h_abl/cp_abl
-                T_2 = T_2 + (delta_t / C) * (q_cond1 - q_cond2)
-                T_3 = T_3 + (delta_t / C) * (q_cond2)
+           
         
 
             if location == 'c':

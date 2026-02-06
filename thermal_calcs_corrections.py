@@ -90,10 +90,12 @@ def calculate_wall_temperature(T_initial, delta_t,T_ad,t_wall,pc,oxname,fuelname
             rho = rho_dict[n_T] + frac * (rho_dict[n_T2] - rho_dict[n_T])
             cp  = c_p_dict[n_T] + frac * (c_p_dict[n_T2] - c_p_dict[n_T])
 
+            #for the nozzle, we should section into pieces and calculate flux at each location along. Not neccessary probably
+            #for our combustion chamber, as area is constant. Maybe do a reimann sum of small cylinders to approximate area along nozzle and throat
             cp *= 4180  # keeping your conversion factor as-written (verify units!)
 
             C = rho * cp * delta_x      #flux is through area?
-            G = k/delta_x
+            G = k/delta_x           #thermal diffusivity where?
 
             h_g = calculate_heat_transfer_coefficient(T_1,T_ad,pc,c_star=c_star,A_t=A_t_m2,A=slice_area,D_t=D_t,r_c=1,M=M,oxname=oxname,fuelname=fuelname,of=of,eps=eps,location=location) #fix all set values 
             q_in = h_g*(T_aw-T_1)

@@ -338,3 +338,4 @@ def calculate_heat_transfer_coefficient(T_guess, T_ad, pc, c_star, A_t, A, D_t, 
     sigma = (0.5 * (T_guess/T_ad) * (1 + (gamma - 1)/2 * M**2) + 0.5)**(-(0.8 - m/5)) * (1 + (gamma - 1)/2 * M**2)**(m/5) # Correction factor
     h_g = 0.026/D_t**0.2 * (mu_SI**0.2 * cp_SI)/(Pr**0.6) * (pc/c_star)**0.8 * (A_t/A)**0.9 * (D_t/r_c)**0.1 * sigma # Convective heat transfer coefficient (W/m^2-K)
     return h_g
+    print(h_g)

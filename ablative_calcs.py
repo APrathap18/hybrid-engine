@@ -1,7 +1,15 @@
+###############################
+# Ablative Calcs Mk. 2
+###############################
+
+
+
 import math
 import numpy as np
 from thermal_calcs import *
 from rocketcea.cea_obj import CEA_Obj
+
+
 
 def ablative_rate(T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelname,of,eps,mach_exit,burn_time,D_c,c_star,D_t,D_e,emissivity = 0.3, boltzmann = 5.67e-8, T_amb = 298, abl_t0 = 5):
     """
