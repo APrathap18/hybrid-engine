@@ -72,14 +72,14 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
                                         'char_loss_rate': {},
                                         'T_g': 3000}}
                                
-    char_rho_dict = ablative_dict[ablative]['char_rho']                        
-    char_k_dict = ablative_dict[ablative]['char_k']
+    rho_char_dict = ablative_dict[ablative]['char_rho']                        
+    k_char_dict = ablative_dict[ablative]['char_k']
     m_char_loss_rate_dict = ablative_dict[ablative]['char_loss_rate']
-    char_cp_dict = ablative_dict[ablative]['char_cp']
+    cp_char_dict = ablative_dict[ablative]['char_cp']
     
-    abl_rho_dict = ablative_dict[ablative]['abl_rho']
-    abl_k_dict = ablative_dict[ablative]['abl_k']
-    abl_cp_dict = ablative_dict[ablative]['abl_cp']
+    rho_abl_dict = ablative_dict[ablative]['abl_rho']
+    k_abl_dict = ablative_dict[ablative]['abl_k']
+    cp_abl_dict = ablative_dict[ablative]['abl_cp']
     m_abl_loss_rate_dict = ablative_dict[ablative]['m_loss_rate']
     
 
@@ -99,6 +99,18 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
     chamber_abl_temp = []
     throat_abl_temp =[]
     exit_abl_temp = []
+    
+    chamber_char_temp = []
+    throat_char_temp = []
+    exit_char_temp = []
+    
+    chamber_char_thickness = []
+    throat_char_thickness = []
+    exit_char_thickness =[]
+
+    chamber_abl_thickness = []
+    throat_abl_thickness = []
+    exit_abl_thickness = []
 
     for location in locations:
         T_char = T_initial
@@ -108,23 +120,28 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
         
 
         T_aw = T_aw_list[locations.index(location)]
-        abl_t = abl_t0
-        char_t = 0
+        
         if location == 'c':
             slice_area = math.pi * (D_c / 2)**2
             M = 0
             ablated = True
             charred = True
+            char_t = 0
+            abl_t = 0
         elif location == 't':
             slice_area = math.pi * (D_t / 2 + abl_t)**2
             M = 1
             ablated = False
             charred = False
+            char_t = 0
+            abl_t = abl_t0
         elif location == 'e':
             slice_area = math.pi * (D_e / 2 + abl_t)**2
             M = mach_exit
             ablated = False
             charred = False
+            char_t = 0
+            abl_t = abl_t0
             
         for t in time_array:
             n_T = int(round(T_1 / 100.0) * 100) 
@@ -143,13 +160,13 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
             rho_bod = rho_dict[n_T] + frac * (rho_dict[n_T2] - rho_dict[n_T])
             cp_bod  = c_p_dict[n_T] + frac * (c_p_dict[n_T2] - c_p_dict[n_T])
 
-            k_abl   = k_abl_dict[n_T_abl]   + frac * (k_dict[n_T2_abl]   - k_dict[n_T_abl])
-            rho_abl = rho_dict[n_T_abl] + frac * (rho_dict[n_T2_abl] - rho_dict[n_T_abl])
-            cp_abl  = c_p_dict[n_T_abl] + frac * (c_p_dict[n_T2_abl] - c_p_dict[n_T_abl])
+            k_abl   = k_abl_dict[n_T_abl]   + frac * (k_abl_dict[n_T2_abl]   - k_abl_dict[n_T_abl])
+            rho_abl = rho_abl_dict[n_T_abl] + frac * (rho_abl_dict[n_T2_abl] - rho_abl_dict[n_T_abl])
+            cp_abl  = cp_abl_dict[n_T_abl] + frac * (cp_abl_dict[n_T2_abl] - cp_abl_dict[n_T_abl])
 
-            k_char   = k_dict[n_T_char]   + frac * (k_dict[n_T2_char]   - k_dict[n_T_char])
-            rho_char = rho_dict[n_T_char] + frac * (rho_dict[n_T2_char] - rho_dict[n_T_char])
-            cp_char  = c_p_dict[n_T_char] + frac * (c_p_dict[n_T2_char] - c_p_dict[n_T_char])
+            k_char   = k_char_dict[n_T_char]   + frac * (k_char_dict[n_T2_char]   - k_char_dict[n_T_char])
+            rho_char = rho_char_dict[n_T_char] + frac * (rho_char_dict[n_T2_char] - rho_char_dict[n_T_char])
+            cp_char  = cp_char_dict[n_T_char] + frac * (cp_char_dict[n_T2_char] - cp_char_dict[n_T_char])
 
             cp_bod *= 4180  # keeping your conversion factor as-written (verify units!)
 
@@ -168,6 +185,7 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
                 abl_t -= abl_rate*delta_t
                 char_t = abl_t0 - abl_t
                 T_char = max(T_initial, (T_char + delta_t/(rho_char*cp_char*char_t)*(q_conv-(m_rate*H_abl)))) #for slab
+                
                 if ablative_dict[ablative]["chem_stable"] == True:
                     T_s_char = T_initial - (q_conv-(m_rate*H_abl))*char_t/k_char
                     T_i_char = T_initial
@@ -219,6 +237,8 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
                 T_2 += (q_cond_out - q_rad_out)*(delta_t)/C
 
             elif charred == False and ablated == True:
+                T_char = 'none'
+                T_v = 'none'
                 h_g = calculate_heat_transfer_coefficient(T_1,T_ad,pc,c_star=c_star,A_t=A_t_m2,A=slice_area,D_t=D_t,r_c=1,M=M,oxname=oxname,fuelname=fuelname,of=of,eps=eps,location=location)
                 q_conv = h_g*(T_aw - T_1)
 
@@ -233,31 +253,23 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
                 chamber_wall_hot_temp.append(T_1)
                 chamber_wall_outer_temp.append(T_2)
                 chamber_abl_temp.append('none')
-            elif location == 't' and ablated == True:
-                throat_abl_temp.append('none')
+                chamber_char_temp.append('none')
+           
+            elif location == 't':      #fix these!!!!
+                throat_abl_temp.append(T_v)
+                throat_char_temp.append(T_char)
                 throat_wall_hot_temp.append(T_1)
-                throat_wall_outer_temp.append(T_2)
-                slice_area = math.pi * (D_t / 2)**2
-            elif location == 't' and ablated == False:      #fix these!!!!
-                throat_abl_temp.append(T_1)
-                throat_wall_hot_temp.append(T_2)
-                throat_wall_outer_temp.append(T_3)      
-                slice_area = math.pi * (D_t / 2 + abl_t)**2
-            elif location == 'e' and ablated == True:
-                exit_abl_temp.append('none')
+                throat_wall_outer_temp.append(T_2)      
+                slice_area = math.pi * (D_t / 2 + abl_t + char_t)**2
+            
+            elif location == 'e':
+                exit_char_temp.append(T_char)
+                exit_abl_temp.append(T_v)
                 exit_wall_hot_temp.append(T_1)
                 exit_wall_outer_temp.append(T_2)
-                slice_area = math.pi * (D_e / 2)**2
-            elif location == 'e' and ablated == False:
-                exit_abl_temp.append(T_1)
-                exit_wall_hot_temp.append(T_2)
-                exit_wall_outer_temp.append(T_3)
-                slice_area = math.pi * (D_e / 2 + abl_t)**2
-            if abl_t <= 0 and ablated == False:
-                abl_fail = t
-                ablated = True
-                T_1 = T_2
-                T_2 = T_3
+                slice_area = math.pi * (D_e / 2 + abl_t + char_t)**2
+
+            
             
 
             
@@ -267,8 +279,16 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
         "Chamber Hot-Wall Temperature (K)": chamber_wall_hot_temp,
         "Throat Hot-Wall Temperature (K)": throat_wall_hot_temp,
         "Exit Hot-Wall Temperature (K)": exit_wall_hot_temp,
+        "Throat Ablative Temperature (K)": throat_abl_temp,
+        "Throat Char Temperature (K)": throat_char_temp,
+        "Throat Char Thickness (in)": throat_char_thickness,
+        "Throat Ablative Thickness (in)": throat_abl_thickness,
+        "Exit Char Temperature (K)": exit_char_temp,
+        "Exit Ablative Temp (K)": exit_abl_temp,
+        "Exit Char Thickness (in)": exit_char_thickness,
+        "Exit Ablative Thickness (in)": exit_abl_thickness
     })
 
     print(df.to_string(index=False, float_format=lambda x: f"{x:.1f}"))
-    return abl_fail
+    
 
