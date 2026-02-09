@@ -61,7 +61,9 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
                                'char_cp': {},
                                'char_k': {},
                                'char_loss_rate': {},
-                               'T_g': 1490},
+                               'T_g': 1490,
+                               'H_abl': 0,
+                               'H_char': 0},
                      'Carbon_phenolic': {'chem_stable': False,
                                         'char_rho': {}, 
                                         'abl_cp': {}, 
@@ -70,7 +72,9 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
                                         'char_cp': {},
                                         'char_k': {},
                                         'char_loss_rate': {},
-                                        'T_g': 3000}}
+                                        'T_g': 3000,
+                                        'H_abl': 0,
+                                        'H_char': 0}}
                                
     rho_char_dict = ablative_dict[ablative]['char_rho']                        
     k_char_dict = ablative_dict[ablative]['char_k']
@@ -81,10 +85,10 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
     k_abl_dict = ablative_dict[ablative]['abl_k']
     cp_abl_dict = ablative_dict[ablative]['abl_cp']
     m_abl_loss_rate_dict = ablative_dict[ablative]['m_loss_rate']
-    
+    H_abl = ablative_dict[ablative]['H_abl']
+    H_char = ablative_dict[ablative]['H_char']
 
-
-    A_t_m2 = math.pi * (D_t / 2)**2
+    A_t_m2 = math.pi * (D_t / 2 + abl_t0)**2
 
     time_array = np.arange(0, burn_time + 1e-12, delta_t)
 
@@ -155,6 +159,9 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
             n_T2_char = n_T_char + 100
 
             frac = (T_1 - n_T) / 100.0  # 0..1 inside the bin
+            frac_char = (T_char - n_T_char) / 100.0
+            frac_abl = (T_v - n_T_abl) / 100.0
+
 
             k_bod   = k_dict[n_T]   + frac * (k_dict[n_T2]   - k_dict[n_T])
             rho_bod = rho_dict[n_T] + frac * (rho_dict[n_T2] - rho_dict[n_T])
@@ -180,7 +187,7 @@ def ablative_rate(ablative, T_initial, delta_t,T_ad,T_0g,t_wall,pc,oxname,fuelna
             if charred == False and ablated == False:            
                 h_g = calculate_heat_transfer_coefficient(T_v,T_ad,pc,c_star=c_star,A_t=A_t_m2,A=slice_area,D_t=D_t,r_c=1,M=M,oxname=oxname,fuelname=fuelname,of=of,eps=eps,location=location)
                 q_conv = h_g*(T_aw - T_v)
-                m_rate = m_loss_rate_dict[int(round(q_conv,-2))]
+                m_rate = m_abl_loss_rate_dict[int(round(q_conv,-2))]
                 abl_rate = m_rate/rho_abl
                 abl_t -= abl_rate*delta_t
                 char_t = abl_t0 - abl_t
