@@ -22,6 +22,8 @@ def hoop_stress_calcs(r_c_m, t_m, pc_pa, y_s, f, pamb_pa=101325.0):
     fos = y_s/vm_stress    ##It may be max wall, however, hoop_stress is in multiple directions, and thus Von Mises criterion for yielding should be used
 
     print(f"Hoop Stress (Pa): {hoop_stress} Pa")
+    print(f"Axial Stress (Pa): {thrust_stress} Pa")
+    print(f"Von Mises Stress (Pa): {vm_stress} Pa")
     print(f"Factor of Safety: {fos}")
 
     return hoop_stress
