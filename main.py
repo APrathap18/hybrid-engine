@@ -76,6 +76,6 @@ def main():
 
     thermal_calcs.calculate_wall_temperature(300, delta_t, T0, thickness, pc_pa, oxName, fuelName, of, eps, mach_exit, burn_time, Dc_m, cstar, Dt_m, De_m)
 
-    fos = structural_calcs.hoop_stress_calcs(Dc_m/2, thickness, pc_pa, 9.65e7)
+    fos = structural_calcs.hoop_stress_calcs(Dc_m/2, thickness, pc_pa, 9.65e7, 890)
 if __name__ == "__main__":
     main()
