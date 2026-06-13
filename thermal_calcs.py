@@ -190,7 +190,7 @@ def plot_thermal_data(time_array, chamber_temp, throat_temp, exit_temp, chamber_
     axes = axes.ravel()
 
     # graph title
-    fig.suptitle(f'{oxName}/{fuelName} @ Pc = {pc:.1f} psia, eps = {eps:.1f}', fontsize=14, fontweight="bold")
+    fig.suptitle(f'{oxName}/{fuelName} @ Pc = {pc*PA_TO_PSI:.1f} psia, eps = {eps:.1f}', fontsize=14, fontweight="bold")
 
     # suplot 1, chamber temp inner wall
     axes[0].plot(time_array, chamber_temp, marker='o', linestyle='-')
@@ -210,7 +210,7 @@ def plot_thermal_data(time_array, chamber_temp, throat_temp, exit_temp, chamber_
     axes[2].plot(time_array, (chamber_delta_T), marker='o', linestyle='-')
     axes[2].set_ylabel('Temp Difference [K]')
     axes[2].grid(True)
-    axes[2].set_title('Chamber Inner-Outer Wall Temp Difference [K] vs. Time [s]')
+    axes[2].set_title('Chamber Wall Temp Difference [K] vs. Time [s]')
 
     # suplot 4, throat temp inner wall
     axes[3].plot(time_array, throat_temp, marker='o', linestyle='-')
@@ -230,7 +230,7 @@ def plot_thermal_data(time_array, chamber_temp, throat_temp, exit_temp, chamber_
     axes[5].plot(time_array, throat_delta_T, marker='o', linestyle='-')
     axes[5].set_ylabel('Temp Difference [K]')
     axes[5].grid(True)
-    axes[5].set_title('Throat Inner-Outer Wall Temp Difference [K] vs. Time [s]')
+    axes[5].set_title('Throat Wall Temp Difference [K] vs. Time [s]')
 
     # suplot 7, exit temp inner wall
     axes[6].plot(time_array, exit_temp, marker='o', linestyle='-')
@@ -250,7 +250,7 @@ def plot_thermal_data(time_array, chamber_temp, throat_temp, exit_temp, chamber_
     axes[8].plot(time_array, exit_delta_T, marker='o', linestyle='-')
     axes[8].set_ylabel('Temp Difference [K]')
     axes[8].grid(True)
-    axes[8].set_title('Exit Inner-Outer Wall Temp Difference [K] vs. Time [s]')
+    axes[8].set_title('Exit Wall Temp Difference [K] vs. Time [s]')
 
     # show plot
     plt.tight_layout()

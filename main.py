@@ -34,7 +34,7 @@ import stress_calcs
 oxName = 'N2O'
 fuelName = 'Paraffin_HTPB_carbon_black'
 pamb = 14.7 # psia
-eps = 4
+# eps = 4
 
 # Densities (design values)
 rhoN2O  = 750.0  # kg/m^3, liquid N2O at ~20–25 C
@@ -44,7 +44,7 @@ def main():
     of = 6
     pc = 300 # psia
     F = 890 # N
-    p1_pa = 360 * 6894.76 # Pa (300 psi chamber + 60 psi drop over injector)
+    p1_pa = 380 * 6894.76 # Pa (300 psi chamber + 60 psi drop over injector)
     pc_pa = 300 * 6894.76 # Pa
     Cd = 0.7
     FS = 3
@@ -74,7 +74,7 @@ def main():
     
     L_total = L_straight_in * INCHES_TO_METERS + L_conv_in * INCHES_TO_METERS + L_div_in * INCHES_TO_METERS
 
-    thermal_calcs.calculate_wall_temperature(300, delta_t, T0, thickness, pc_pa, oxName, fuelName, of, eps, mach_exit, burn_time, Dc_m, cstar, Dt_m, De_m)
+    #thermal_calcs.calculate_wall_temperature(300, delta_t, T0, thickness, pc_pa, oxName, fuelName, of, eps, mach_exit, burn_time, Dc_m, cstar, Dt_m, De_m)
 
     fos = structural_calcs.hoop_stress_calcs(Dc_m/2, thickness, pc_pa, 9.65e7)
 if __name__ == "__main__":
