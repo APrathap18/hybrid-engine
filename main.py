@@ -55,6 +55,8 @@ def main():
     D_c    = 2.0   # in
     conv_angle = 30 # degrees
     div_angle = 15  # degrees
+    port_diameter = 1.5 * INCHES_TO_METERS # inches
+
 
     # Material Properties
     delta_t = 0.2 # seconds
@@ -70,7 +72,7 @@ def main():
     # [At, At_in, m_dot, throat_dia, cstar, Tc_K] = throat_sizing.throat_sizing_function(of, pc, F, eps, pamb, rhoN2O, rhofuel, oxName, fuelName) # in^2
     plot_OF.plot_OF(pc, eps, oxName, fuelName, pamb)
 
-    _, _, L_straight_in, L_conv_in, V_c_in3, L_div_in = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, Dt_in, De_in, conv_angle, div_angle, p1_pa, pc_pa, rhoN2O)
+    _, _, L_straight_in, L_conv_in, V_c_in3, L_div_in = orifice_sizing.orifice_area(At_in, of, Cd, m_dot, L_star, D_c, Dt_in, De_in, conv_angle, div_angle, p1_pa, pc_pa, rhoN2O, rhofuel, port_diameter)
     
     L_total = L_straight_in * INCHES_TO_METERS + L_conv_in * INCHES_TO_METERS + L_div_in * INCHES_TO_METERS
 

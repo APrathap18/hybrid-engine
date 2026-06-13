@@ -84,6 +84,9 @@ def nozzle_sizer(F_N, pc_pa, of, oxname, fuelname, pamb_pa=101325.0):
     :param of: of ratio
     :param oxname: name of oxidizer (string)
     :param fuelname: name of fuel (string)
+    :param port_diameter: port diameter (m)
+    :param fuel_density: fuel density (kg/m^3)
+    :param chamber_length: chamber length total (m)
     :param pamb_pa: ambient pressure (pa)
     """
     cea = CEA_Obj(oxName = oxname, fuelName = fuelname)
@@ -137,6 +140,15 @@ def nozzle_sizer(F_N, pc_pa, of, oxname, fuelname, pamb_pa=101325.0):
     # Get mass flow rate (kg/s)
     m_dot = pc_pa * A_t / cstar 
 
+    # Fuel and ox respective mass flows (kg/s)
+    m_dot_fuel = (m_dot) / (of + 1)
+    m_dot_ox = (of / (of + 1)) * m_dot
+
+    # Regression rate 
+    # port_area = (math.pi() * port_diameter ** 2)/4 # m^2
+    #G_ox = m_dot_ox / port_area # m/s
+    # G_req = m_dot_fuel / (fuel_density * math.pi() * port_diameter * chamber_length)
+
     print("----------------------------------")
     print("Nozzle Sizing Parameters")
     print("----------------------------------")
@@ -153,6 +165,8 @@ def nozzle_sizer(F_N, pc_pa, of, oxname, fuelname, pamb_pa=101325.0):
     print(f"ISP (s): {isp} s")
     print(f"C-Star (m/s): {cstar} m/s")
     print(f"Propellant Mass Flow Rate (kg/s): {m_dot} kg/s")
+    print(f"Nitrous Mass Flow Rate (kg/s): {m_dot_ox}")
+    print(f"Fuel Mass Flow Rate (kg/s): {m_dot_fuel}")
     print(f"Chamber Temperature (K): {Tc_K} K")
     print(f"Throat Temperature (K): {Tt_K} K")
     print(f"Exhaust Temperature (K): {Te_K} K")

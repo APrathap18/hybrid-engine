@@ -1,7 +1,7 @@
 import math as math
 import traceback
 
-def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, D_e, conv_angle, div_angle, P1, P2, rho_ox):
+def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, D_e, conv_angle, div_angle, P1, P2, rho_ox, rho_fuel, port_diameter):
     #print("\n[DEBUG] orifice_area called from:")
     #traceback.print_stack(limit=4)
 
@@ -21,6 +21,8 @@ def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, D_e, conv_angle, div_a
     :param P1: inlet pressure (pa)
     :param P2: chamber pressure (pa)
     :param rho_ox: density of oxidizer (kg/m^3)
+    :param rho_fuel: density of fuel (kg/m^3)
+    :param port_diameter: port diameter (m)
     """
 
     # m dot of N2O
@@ -79,6 +81,18 @@ def orifice_area(A_t_in2, of, Cd, mdot, L_star, D_c, D_t, D_e, conv_angle, div_a
 
     print(f"N2O Orifice Area (A, C_d={Cd}): {A_ox_mm2:.3f} mm^2")
     print(f"N2O Orifice Area (A, C_d={Cd}): {A_ox_in2:.3f} in^2")
+
+    # Fuel and ox respective mass flows (kg/s)
+    m_dot_fuel = (mdot) / (of + 1)
+    m_dot_ox = (of / (of + 1)) * mdot
+
+    # Regression rate 
+    port_area = (math.pi * port_diameter ** 2)/4 # m^2
+    G_ox = m_dot_ox / port_area # m/s
+    G_req = m_dot_fuel / (rho_fuel * math.pi * port_diameter * L_straight * 0.9)
+
+    print(f"Oxidizer Regression Rate (m/s): {G_ox:.3f} m/s")
+    print(f"Required Fuel Regression Rate (m/s): {G_req} m/s")
 
     print("----------------------------------")
 
